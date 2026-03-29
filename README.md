@@ -231,7 +231,7 @@ npm run dev
 
 ---
 
-## ��� Testing
+## Testing
 
 ### Run Tests
 
