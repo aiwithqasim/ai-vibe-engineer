@@ -1,12 +1,12 @@
-# AI Vibe Engineer Ì¥ñ
+# AI Vibe Engineer 
 
 A comprehensive repository showcasing **multiple AI-powered Kanban board implementations** and learning projects built as part of the Complete AI Coder Course. This repository demonstrates how different AI coding assistants (Codex, Copilot, Cursor, and Antigravity) can be used to build the same project with varying approaches and results.
 
-## Ì≥ö Project Overview
+## Project Overview
 
 This repository contains 5 complementary projects:
 
-### 1. **Antigravity Kanban** Ì≥±
+### 1. **Antigravity Kanban**
 A modern Kanban board implementation with advanced features.
 
 - **Tech Stack**: Next.js, TypeScript, React
@@ -36,7 +36,7 @@ npm run test:e2e
 
 ---
 
-### 2. **Codex Kanban** Ì∑†
+### 2. **Codex Kanban**
 Kanban implementation built with OpenAI's Codex AI assistant.
 
 - **Tech Stack**: Next.js, TypeScript, React
@@ -59,7 +59,7 @@ npm run dev
 
 ---
 
-### 3. **Copilot Kanban** Ì∫Ä
+### 3. **Copilot Kanban**
 Full-featured Kanban board built with GitHub Copilot.
 
 - **Tech Stack**: Next.js, React, Jest, Playwright
@@ -108,7 +108,7 @@ npm run dev
 
 ---
 
-### 5. **Instant Starter** ÌæÆ
+### 5. **Instant Starter**
 A 3D first-person shooter game implementation.
 
 - **Tech Stack**: HTML5, CSS3, JavaScript
@@ -126,7 +126,7 @@ cd instant_starter
 
 ---
 
-## ÌæØ Key Features Across Projects
+## Key Features Across Projects
 
 All Kanban implementations include:
 
@@ -150,7 +150,7 @@ All Kanban implementations include:
 
 ---
 
-## Ì¥ñ AI Assistants Comparison
+## AI Assistants Comparison
 
 This repository serves as a learning resource comparing different AI coding assistants:
 
@@ -163,7 +163,7 @@ This repository serves as a learning resource comparing different AI coding assi
 
 ---
 
-## Ì≥ã Project Structure
+## Project Structure
 
 ```
 ai-vibe-engineer/
@@ -193,7 +193,7 @@ ai-vibe-engineer/
 
 ---
 
-## Ì∫Ä Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -231,7 +231,7 @@ npm run dev
 
 ---
 
-## Ì∑™ Testing
+## ÔøΩÔøΩÔøΩ Testing
 
 ### Run Tests
 
@@ -255,7 +255,7 @@ npm start
 
 ---
 
-## Ì≥ñ Documentation
+## Documentation
 
 Each project contains comprehensive documentation:
 
@@ -266,7 +266,7 @@ Each project contains comprehensive documentation:
 
 ---
 
-## Ì¥ù Contributing
+## Contributing
 
 We welcome contributions! Please:
 
@@ -282,13 +282,13 @@ If you've created an effective AGENTS.md configuration, consider contributing it
 
 ---
 
-## Ì≥ù License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
 
 ---
 
-## Ìæì Learning Resources
+## Learning Resources
 
 This repository is part of the **Complete AI Coder Course**. 
 
@@ -303,7 +303,7 @@ This repository is part of the **Complete AI Coder Course**.
 
 ---
 
-## Ì≤° Quick Reference
+## Quick Reference
 
 ### Common Commands
 
@@ -324,14 +324,13 @@ npm run test:watch   # Watch mode testing
 
 ---
 
-## Ì¥ó Related Projects
+## Related Projects
 
 - [Original Kanban Template](https://github.com/ed-donner/kanban)
-- [Complete AI Coder Course](https://www.complete-ai-coder.com)
 
 ---
 
-## Ìπã Support
+## Support
 
 For questions or issues:
 
@@ -342,7 +341,7 @@ For questions or issues:
 
 ---
 
-## Ìºü Acknowledgments
+## Acknowledgments
 
 - Course materials from **Complete AI Coder Course**
 - Template based on **Ed Donner's Kanban Project**
