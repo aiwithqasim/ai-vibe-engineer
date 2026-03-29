@@ -1,0 +1,48 @@
+:root {
+  --color-accent-yellow: #ecad0a;
+  --color-blue-primary: #209dd7;
+  --color-purple-secondary: #753991;
+  --color-dark-navy: #032147;
+  --color-gray-text: #888888;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+  --max-width: 1600px;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  font-family: var(--font-sans);
+  color: var(--color-dark-navy);
+  background: linear-gradient(135deg, #faf9f6 0%, #f7f9fb 100%);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#__next { height: 100%; }
+
+.page-root {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0;
+}
+
+.site-header {
+  padding: 24px 20px;
+  border-bottom: 2px solid var(--color-accent-yellow);
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.site-header h1 {
+  margin: 0;
+  color: var(--color-dark-navy);
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.site-header .subtitle {
+  margin: 4px 0 0 0;
+  color: var(--color-gray-text);
+  font-size: 14px;
+}

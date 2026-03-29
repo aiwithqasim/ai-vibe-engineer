@@ -1,0 +1,32 @@
+.boardContainer {
+  width: 100%;
+  padding: 20px;
+  background: linear-gradient(135deg, #faf9f6 0%, #f7f9fb 100%);
+  min-height: 100vh;
+}
+
+.board {
+  display: flex;
+  gap: 16px;
+  max-width: 1600px;
+  margin: 0 auto;
+  overflow-x: auto;
+  padding-bottom: 20px;
+}
+
+.board::-webkit-scrollbar {
+  height: 8px;
+}
+
+.board::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.board::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.board::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
