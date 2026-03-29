@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arena Duel FPS</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="hud">
+      <h1>Arena Duel FPS</h1>
+      <p>Controls: Arrow Keys move/turn, Space shoots.</p>
+      <p id="status">Press Start Match or Enter to begin.</p>
+      <div id="stats">
+        <span id="player-health">Player HP: 100</span>
+        <span id="enemy-health">Enemy HP: 100</span>
+      </div>
+      <button id="start-btn" type="button">Start Match</button>
+    </div>
+
+    <div id="crosshair" aria-hidden="true"></div>
+
+    <div id="win-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="win-title">
+      <div class="modal-card">
+        <h2 id="win-title">You Won!</h2>
+        <p>You defeated the enemy in the arena.</p>
+        <button id="play-again-btn" type="button">Play Again</button>
+      </div>
+    </div>
+
+    <script src="game.js"></script>
+  </body>
+</html>

@@ -1,0 +1,30 @@
+:root {
+  --accent-yellow: #ecad0a;
+  --blue-primary: #209dd7;
+  --purple-secondary: #753991;
+  --dark-navy: #032147;
+  --gray-text: #888888;
+  --background: #f3f7fd;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  color: var(--dark-navy);
+  background:
+    radial-gradient(circle at 4% 6%, color-mix(in srgb, var(--accent-yellow), transparent 86%), transparent 34%),
+    radial-gradient(circle at 90% 20%, color-mix(in srgb, var(--blue-primary), transparent 88%), transparent 37%),
+    linear-gradient(180deg, #f9fcff 0%, #eff5ff 100%);
+  font-family: var(--font-manrope), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}

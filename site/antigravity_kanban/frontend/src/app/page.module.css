@@ -1,0 +1,60 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.header {
+  margin-bottom: 2rem;
+  text-align: center;
+  animation: fadeInDown 0.8s ease-out;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--color-yellow), var(--color-blue), var(--color-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: var(--color-gray);
+}
+
+.boardContainer {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 1rem;
+  animation: fadeIn 1s ease-out 0.2s both;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
