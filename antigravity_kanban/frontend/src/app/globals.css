@@ -1,0 +1,75 @@
+:root {
+  --color-yellow: #ecad0a;
+  --color-blue: #209dd7;
+  --color-purple: #753991;
+  --color-navy: #032147;
+  --color-gray: #888888;
+  --color-text: #ffffff;
+  --color-bg-start: #011024;
+  --color-bg-end: #032147;
+  --color-card-bg: rgba(255, 255, 255, 0.05);
+  --color-card-hover: rgba(255, 255, 255, 0.08);
+  --color-card-border: rgba(255, 255, 255, 0.1);
+  --color-column-bg: rgba(255, 255, 255, 0.02);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    /* Slightly adapt for light mode if user prefers it, though default is dark aesthetic */
+    --color-text: #1a1a1a;
+    --color-bg-start: #f8f9fa;
+    --color-bg-end: #e9ecef;
+    --color-card-bg: rgba(255, 255, 255, 0.8);
+    --color-card-hover: rgba(255, 255, 255, 0.95);
+    --color-card-border: rgba(0, 0, 0, 0.1);
+    --color-column-bg: rgba(0, 0, 0, 0.03);
+  }
+}
+
+html,
+body {
+  max-width: 100vw;
+  min-height: 100vh;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-inter), sans-serif;
+  color: var(--color-text);
+  background: linear-gradient(135deg, var(--color-bg-start), var(--color-bg-end));
+  background-attachment: fixed;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Glassmorphism utilities */
+.glass {
+  background: var(--color-card-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-card-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease-in-out;
+}
+
+.glass:hover {
+  background: var(--color-card-hover);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-gray);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-blue);
+}
