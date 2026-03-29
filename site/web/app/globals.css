@@ -1,0 +1,347 @@
+:root {
+  --bg-base: #070b14;
+  --bg-elevated: #0d1526;
+  --panel-bg: rgba(9, 19, 35, 0.78);
+  --panel-border: rgba(125, 146, 178, 0.28);
+  --text-primary: #f5f8ff;
+  --text-secondary: #b8c3dc;
+  --text-muted: #8fa2c8;
+  --accent: #4f8dff;
+  --accent-2: #10f0bd;
+  --accent-soft: rgba(79, 141, 255, 0.22);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--text-primary);
+  background:
+    radial-gradient(circle at 80% -10%, rgba(28, 120, 255, 0.22), transparent 40%),
+    radial-gradient(circle at 0% 100%, rgba(0, 226, 177, 0.14), transparent 40%),
+    var(--bg-base);
+  font-family: var(--font-geist-sans), "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.site-shell {
+  position: relative;
+  width: min(1120px, calc(100% - 3rem));
+  margin: 2rem auto 3rem;
+  isolation: isolate;
+}
+
+.ambient-glow {
+  position: absolute;
+  z-index: -1;
+  width: 28rem;
+  aspect-ratio: 1;
+  filter: blur(72px);
+  border-radius: 999px;
+}
+
+.ambient-glow-top {
+  top: -7rem;
+  right: -4rem;
+  background: rgba(80, 133, 255, 0.45);
+}
+
+.ambient-glow-bottom {
+  bottom: 2rem;
+  left: -4rem;
+  background: rgba(16, 240, 189, 0.22);
+}
+
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4.5rem;
+  padding: 1rem 1.25rem;
+  background: rgba(13, 21, 38, 0.56);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+}
+
+.brand {
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+
+.top-nav ul {
+  display: flex;
+  gap: 1.25rem;
+  list-style: none;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.top-nav a:hover {
+  color: var(--text-primary);
+}
+
+.hero {
+  margin-bottom: 2rem;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin-bottom: 1rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid rgba(79, 141, 255, 0.45);
+  border-radius: 999px;
+  color: #d6e4ff;
+  font-size: 0.84rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  max-width: 18ch;
+  font-size: clamp(2.2rem, 5vw, 4.35rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.hero-copy {
+  max-width: 65ch;
+  margin-top: 1.2rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  font-size: clamp(1.02rem, 1.6vw, 1.16rem);
+}
+
+.cta-row {
+  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+}
+
+.button {
+  padding: 0.72rem 1.15rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-weight: 560;
+  transition: all 150ms ease;
+}
+
+.button.primary {
+  background: linear-gradient(110deg, #4f8dff, #2fc6ff);
+  color: #04142b;
+}
+
+.button.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.button.secondary {
+  border-color: rgba(125, 146, 178, 0.42);
+  color: var(--text-secondary);
+}
+
+.button.secondary:hover {
+  border-color: rgba(79, 141, 255, 0.7);
+  color: var(--text-primary);
+}
+
+.panel {
+  margin-top: 1.15rem;
+  padding: clamp(1.1rem, 2.2vw, 2rem);
+  border: 1px solid var(--panel-border);
+  background: linear-gradient(145deg, var(--panel-bg), rgba(7, 11, 20, 0.85));
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
+}
+
+.panel h2 {
+  margin-bottom: 0.85rem;
+  letter-spacing: -0.01em;
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+}
+
+.panel p {
+  color: var(--text-secondary);
+  line-height: 1.68;
+}
+
+.panel p + p {
+  margin-top: 0.85rem;
+}
+
+.journey-grid,
+.portfolio-grid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.9rem;
+}
+
+.journey-card,
+.portfolio-card {
+  border: 1px solid rgba(125, 146, 178, 0.28);
+  border-radius: 12px;
+  padding: 0.9rem;
+  background: rgba(8, 17, 32, 0.8);
+}
+
+.journey-period {
+  font-size: 0.82rem;
+  color: var(--accent-2);
+  margin-bottom: 0.4rem;
+}
+
+.journey-card h3,
+.portfolio-card h3 {
+  margin-bottom: 0.28rem;
+  font-size: 1rem;
+}
+
+.journey-company {
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.portfolio-card span {
+  display: inline-block;
+  margin-top: 0.7rem;
+  color: #93ffc6;
+  font-size: 0.8rem;
+}
+
+.footer {
+  margin-bottom: 0.75rem;
+}
+
+.contact-links {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  color: #cae4ff;
+}
+
+.contact-links a:hover {
+  color: #ffffff;
+}
+
+.chat-shell {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.chat-bubble {
+  border: 1px solid rgba(125, 146, 178, 0.28);
+  border-radius: 12px;
+  padding: 0.8rem 0.9rem;
+}
+
+.chat-ai {
+  background: rgba(6, 16, 32, 0.84);
+}
+
+.chat-user {
+  background: rgba(12, 27, 51, 0.9);
+  border-color: rgba(79, 141, 255, 0.42);
+}
+
+.chat-role {
+  margin-bottom: 0.35rem;
+  color: var(--accent-2);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.chat-form {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.6rem;
+}
+
+.chat-form input {
+  width: 100%;
+  background: rgba(7, 13, 24, 0.95);
+  border: 1px solid rgba(125, 146, 178, 0.38);
+  border-radius: 10px;
+  color: var(--text-primary);
+  padding: 0.72rem 0.82rem;
+  outline: none;
+}
+
+.chat-form input:focus {
+  border-color: rgba(79, 141, 255, 0.78);
+  box-shadow: 0 0 0 3px rgba(79, 141, 255, 0.18);
+}
+
+.chat-form button {
+  border: none;
+  border-radius: 10px;
+  padding: 0.68rem 1rem;
+  color: #03142c;
+  background: linear-gradient(110deg, #4f8dff, #2fc6ff);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chat-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.chat-error {
+  margin-top: 0.75rem;
+  color: #ff9d9d;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 740px) {
+  .site-shell {
+    width: min(1120px, calc(100% - 1.3rem));
+    margin-top: 1rem;
+  }
+
+  .top-nav {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .top-nav ul {
+    flex-wrap: wrap;
+    gap: 0.7rem;
+  }
+
+  .chat-form {
+    grid-template-columns: 1fr;
+  }
+}

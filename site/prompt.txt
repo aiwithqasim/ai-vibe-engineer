@@ -1,0 +1,27 @@
+PROMPT# 01
+----------
+
+My LinkedIn profile is in LinkedIn.pdf.
+
+Make the website stunning.
+
+Enterprise meets edgy.
+
+It should include about me, my career journey, links to a portfolio for future.
+
+Iterate to make it as slick and professional as possible.
+
+And let me know when complete. Use Next.js. That's it.
+
+PROMPT# 02
+----------
+
+Please now add the ability to have an AI chat with a digital twin,
+
+which can answer questions about my career.
+
+Please use OpenRooter.
+
+My OpenRooter API key is in the .emv file in the project root.
+
+Please use the model named "model-name".
