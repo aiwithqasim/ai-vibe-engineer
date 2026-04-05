@@ -1,10 +1,60 @@
-# Kanban Studio
+# Frontend (Next.js)
 
-## Run
+Kanban Studio UI: login, authenticated board with five columns, drag-and-drop cards, column rename, add/delete cards. Talks to the FastAPI backend via **`/api/*`** (same origin in Docker; proxied in local dev).
+
+## Stack
+
+- **Next.js 16** (App Router), **React 19**, **TypeScript**
+- **Tailwind CSS 4** (`globals.css` design tokens match repo color scheme)
+- **@dnd-kit** for drag and drop
+- **Vitest** + Testing Library for unit tests
+- **Playwright** for end-to-end tests
+
+## Static export
+
+`next.config.ts` sets `output: "export"` so `npm run build` produces **`out/`**. The Docker image copies `out/` into `backend/static/`; FastAPI serves it at `/`.
+
+**Rewrites:** In development only, `/api/*` is rewritten to `http://127.0.0.1:8000/api/*` so `npm run dev` can run against a local Uvicorn instance. Static export builds do not apply those rewrites; in Docker the browser calls the same host for HTML and API.
+
+## Routes
+
+| Path | File | Role |
+|------|------|------|
+| `/` | `src/app/page.tsx` | `AuthGate` + `KanbanBoard` |
+| `/login` | `src/app/login/page.tsx` | Sign-in form |
+
+## Data flow
+
+- **Load:** `KanbanBoard` calls `fetchBoard()` (`GET /api/board`) after auth.
+- **Save:** After each mutation, `persistBoard()` (`PUT /api/board`) sends the full board JSON.
+- **`initialData`** in `src/lib/kanban.ts` is the default seed shape (kept in sync with `backend/board_seed.py`); it is not the runtime source of truth after a successful load.
+
+## Commands
+
+Install dependencies:
 
 ```bash
 npm install
+```
+
+Development server (run backend on port 8000 separately):
+
+```bash
 npm run dev
+```
+
+Production static build:
+
+```bash
+npm run build
+```
+
+Output directory: **`out/`**
+
+Lint:
+
+```bash
+npm run lint
 ```
 
 ## Tests
@@ -12,4 +62,23 @@ npm run dev
 ```bash
 npm run test:unit
 npm run test:e2e
+npm run test:all
 ```
+
+**Unit tests** mock `fetch` for `/api/board` where needed.
+
+**E2e** (`playwright.config.ts`) starts two processes: Uvicorn from the repo root (with a temp SQLite file via `DATABASE_PATH`) and `npm run dev` on port 3000. Tests log in with `user` / `password` before board scenarios.
+
+## Structure (high level)
+
+```
+src/
+  app/           layout, global styles, page, login
+  components/    KanbanBoard, columns, cards, forms, AuthGate
+  lib/           kanban types/logic, api.ts, session.ts
+tests/           Playwright specs
+```
+
+Component-level detail: **`AGENTS.md`** in this folder.
+
+See **`../README.md`** for running the full Docker stack.

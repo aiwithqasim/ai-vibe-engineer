@@ -48,6 +48,10 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
+testing/backend/.pytest_kanban.db
+
+# Local SQLite (uvicorn without Docker)
+data/
 cover/
 
 # Translations

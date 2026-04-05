@@ -66,28 +66,28 @@
 
 ### Steps
 
-- [ ] Update `Dockerfile` — add Node.js build stage: `npm ci && npm run build` inside `frontend/`, copy `frontend/out/` to backend static dir
-- [ ] Update `next.config.ts` — set `output: "export"` and `basePath` if needed, disable image optimization for static export
-- [ ] Update FastAPI `main.py` — mount `/` to serve the exported static files directory
-- [ ] Verify routing: Next.js static export produces `index.html` at root
-- [ ] Smoke test: rebuild Docker image and confirm Kanban board loads at `http://localhost:8000/`
+- [x] Update `Dockerfile` — add Node.js build stage: `npm ci && npm run build` inside `frontend/`, copy `frontend/out/` to backend static dir
+- [x] Update `next.config.ts` — set `output: "export"` and `basePath` if needed, disable image optimization for static export
+- [x] Update FastAPI `main.py` — mount `/` to serve the exported static files directory
+- [x] Verify routing: Next.js static export produces `index.html` at root
+- [x] Smoke test: rebuild Docker image and confirm Kanban board loads at `http://localhost:8000/`
 
 ### Tests (in `testing/frontend/`)
 
-- [ ] Existing Vitest unit tests pass: `npm run test:unit`
-- [ ] New integration test: confirm exported `out/index.html` exists after `npm run build`
-- [ ] Update Playwright config `baseURL` to `http://localhost:8000` for Docker context (keep `http://127.0.0.1:3000` for local dev)
-- [ ] E2e smoke test in `testing/frontend/` — load `/`, assert 5 columns present
+- [x] Existing Vitest unit tests pass: `npm run test:unit`
+- [ ] New integration test: confirm exported `out/index.html` exists after `npm run build` (optional; not added)
+- [ ] Playwright `baseURL` for Docker-only runs (`http://localhost:8000`) — optional; local e2e uses dev server + API (see `frontend/playwright.config.ts`)
+- [x] E2e in `frontend/tests/` — board flows (with auth from Part 4); five columns asserted after login
 
 ### Tests (in `testing/api/`)
 
-- [ ] `test_frontend_served.py` — `GET /` returns 200 and contains Kanban app HTML
+- [x] `test_frontend_served.py` — `GET /` returns 200 and contains Kanban app HTML
 
 ### Success Criteria
 
 - `http://localhost:8000/` shows the Kanban board (all 5 columns, seeded cards)
 - Drag and drop works in browser
-- All unit and e2e tests pass
+- All unit and e2e tests pass (e2e requires API on port 8000; Playwright starts it alongside Next dev)
 
 ---
 
@@ -97,17 +97,17 @@
 
 ### Steps
 
-- [ ] Add `POST /api/auth/login` to FastAPI — accepts `{username, password}`, validates against hardcoded values, returns a signed JWT (or session token) in an HTTP-only cookie
-- [ ] Add `POST /api/auth/logout` — clears the cookie
-- [ ] Add `GET /api/auth/me` — returns `{username}` if authenticated, else 401
-- [ ] Create `frontend/src/app/login/page.tsx` — login form (username, password, submit); redirects to `/` on success
-- [ ] Update `frontend/src/app/page.tsx` — call `/api/auth/me` on load; redirect to `/login` if 401
-- [ ] Add logout button to board header calling `POST /api/auth/logout` then redirecting to `/login`
-- [ ] Rebuild Docker image; confirm full flow works end-to-end
+- [x] Add `POST /api/auth/login` to FastAPI — accepts `{username, password}`, validates against hardcoded values, returns a signed JWT (or session token) in an HTTP-only cookie
+- [x] Add `POST /api/auth/logout` — clears the cookie
+- [x] Add `GET /api/auth/me` — returns `{username}` if authenticated, else 401
+- [x] Create `frontend/src/app/login/page.tsx` — login form (username, password, submit); redirects to `/` on success
+- [x] Update `frontend/src/app/page.tsx` — `AuthGate` calls `/api/auth/me` on load; redirect to `/login` if 401
+- [x] Add logout button to board header calling `POST /api/auth/logout` then redirecting to `/login`
+- [x] Rebuild Docker image; confirm full flow works end-to-end
 
 ### Tests (in `testing/backend/`)
 
-- [ ] `test_auth.py`:
+- [x] `test_auth.py`:
   - `POST /api/auth/login` with correct creds returns 200 + sets cookie
   - `POST /api/auth/login` with wrong creds returns 401
   - `GET /api/auth/me` with valid cookie returns `{username: "user"}`
@@ -116,12 +116,14 @@
 
 ### Tests (in `testing/frontend/`)
 
-- [ ] Vitest: login form renders, submits, shows error on bad credentials
-- [ ] Playwright e2e in `testing/frontend/`:
-  - Unauthenticated visit to `/` redirects to `/login`
-  - Logging in with correct credentials shows the board
-  - Logging in with wrong credentials shows an error message
-  - Logout returns to `/login`
+- [x] Vitest: `frontend/src/app/login/page.test.tsx` — form renders; bad credentials show error (e2e lives under `frontend/tests/` per current layout, not `testing/frontend/`)
+
+### Tests (Playwright, `frontend/tests/`)
+
+- [x] Unauthenticated visit to `/` redirects to `/login`
+- [x] Logging in with correct credentials shows the board
+- [x] Wrong credentials show an error message
+- [x] Logout returns to `/login`
 
 ### Success Criteria
 
@@ -136,6 +138,8 @@
 ## Part 5: Database Modeling
 
 **Goal:** Propose and get sign-off on a SQLite schema that supports multiple users and multiple boards (future-proofed MVP).
+
+**Implementation note (current code vs this part):** Parts 6–7 were implemented **before** this design package using a **stopgap** store: table `board_state` with a single row and a **JSON payload** for the whole board (`backend/database.py`, `backend/board_seed.py`). There are **no** `users` / `boards` / `columns` / `cards` tables yet, and board data is **not** keyed by user ID in the database (the MVP has one logical board per deployment). **Part 5 is still the right next documentation step** when you want a signed-off `docs/schema.json` and `docs/DATABASE.md` so a later refactor can migrate the JSON snapshot into normalized tables, tie rows to `users`, and support multiple boards without changing the product goals.
 
 ### Steps
 
@@ -156,72 +160,73 @@
 
 **Goal:** FastAPI reads and writes Kanban data from SQLite. Database is auto-created if it doesn't exist.
 
+**MVP implementation note:** The board is stored as a **single JSON snapshot** in SQLite (`board_state` table, one row). The API is **`GET /api/board`** and **`PUT /api/board`** instead of per-resource `PATCH`/`POST`/`DELETE` routes. That satisfies persistence for the MVP; granular REST routes remain optional if the schema moves to normalized tables (Part 5).
+
 ### Steps
 
-- [ ] Add `sqlalchemy` (or raw `sqlite3`) and `alembic` (optional) to `pyproject.toml`
-- [ ] Create `backend/database.py` — SQLite connection, table creation on startup if not exists
-- [ ] Create `backend/models.py` — SQLAlchemy models (or dataclasses) for users, boards, columns, cards
-- [ ] Create `backend/crud.py` — functions: `get_board(user_id)`, `update_column_title(column_id, title)`, `move_card(card_id, target_column_id, position)`, `create_card(column_id, title, details)`, `delete_card(card_id)`
-- [ ] Add API routes in `backend/main.py`:
-  - `GET /api/board` — returns full board for authenticated user
-  - `PATCH /api/columns/{id}` — rename column
-  - `POST /api/cards` — create card
-  - `PATCH /api/cards/{id}` — move or edit card
-  - `DELETE /api/cards/{id}` — delete card
-- [ ] Seed default board with 5 columns and sample cards on first login
-- [ ] All routes require valid auth cookie (middleware or dependency)
+- [x] Add `sqlite3` (stdlib) — no SQLAlchemy/Alembic for this MVP slice
+- [x] Create `backend/database.py` — SQLite path from `DATABASE_PATH` or `{DATA_DIR}/kanban.db`, `init_db()` on app lifespan, `load_board` / `save_board`
+- [x] Create `backend/board_seed.py` — default board JSON (kept in sync with `frontend/src/lib/kanban.ts` `initialData`)
+- [ ] Create `backend/models.py` — deferred until Part 5 normalized schema
+- [ ] Create `backend/crud.py` — deferred; full-board read/write covers MVP mutations
+- [x] Add API routes in `backend/main.py`:
+  - [x] `GET /api/board` — returns full board for authenticated user
+  - [x] `PUT /api/board` — replaces full board JSON (covers rename, add, move, delete on the client)
+  - [ ] `PATCH /api/columns/{id}`, `POST /api/cards`, `PATCH /api/cards/{id}`, `DELETE /api/cards/{id}` — optional future split endpoints
+- [x] Seed default board (5 columns, sample cards) on first DB init
+- [x] Board routes require auth (`Depends(require_user)`)
 
 ### Tests (in `testing/backend/`)
 
-- [ ] `test_board_api.py`:
-  - `GET /api/board` returns full board structure for authenticated user
-  - `PATCH /api/columns/{id}` updates column title and persists
-  - `POST /api/cards` creates card in correct column and persists
-  - `PATCH /api/cards/{id}` moves card to correct column at correct position
-  - `DELETE /api/cards/{id}` removes card and persists
-  - All routes return 401 when unauthenticated
-- [ ] `test_database.py` — database is created if it doesn't exist on startup
+- [x] `test_board.py` — `GET /api/board` after login; `PUT` persists changes; unauthenticated `GET` returns 401
+- [ ] Per-route tests for `PATCH/POST/DELETE` — N/A until those routes exist
+- [x] DB creation on startup — covered by `TestClient` lifespan + `test_board` (tables + seed)
 
 ### Tests (in `testing/api/`)
 
-- [ ] Integration tests hitting the full Docker stack via HTTP
+- [ ] Integration tests hitting the full Docker stack via HTTP (optional; `test_frontend_served.py` covers static + hello)
 
 ### Success Criteria
 
-- All CRUD operations persist across container restarts (SQLite file mounted as volume)
-- All unit tests pass with isolated in-memory SQLite
-- Unauthenticated requests to all API routes return 401
+- [x] Board state persists across container restarts (SQLite on Docker volume `/app/data`)
+- [x] Unit tests pass with isolated test DB (`testing/backend/.pytest_kanban.db` via `DATABASE_PATH`)
+- [x] Unauthenticated `GET/PUT /api/board` return 401
 
 ---
 
 ## Part 7: Frontend + Backend Integration
 
-**Goal:** The frontend reads and writes Kanban data from the real API. No more `initialData` in memory.
+**Goal:** The frontend reads and writes Kanban data from the real API. No more **client-only** `initialData` as the source of truth after load.
+
+**MVP implementation note:** `frontend/src/lib/api.ts` exposes **`fetchBoard`** and **`persistBoard`** (full snapshot). Each local mutation updates React state and then **`PUT /api/board`**. `initialData` remains in `kanban.ts` for types, Vitest mocks, seed parity with the backend, and non-production demos — it is **not** used to initialize the board after `GET /api/board` succeeds.
 
 ### Steps
 
-- [ ] Create `frontend/src/lib/api.ts` — typed fetch helpers for all API routes (`getBoard`, `renameColumn`, `createCard`, `moveCard`, `deleteCard`)
-- [ ] Update `KanbanBoard.tsx` — replace `initialData` useState init with `useEffect` fetch to `GET /api/board`; show loading state
-- [ ] Update all board mutation handlers to call API functions and then update local state on success (optimistic or confirmed)
-- [ ] Handle API errors gracefully (show toast or error message, do not silently fail)
-- [ ] Rebuild and test full Docker stack end-to-end
+- [x] Create `frontend/src/lib/api.ts` — `fetchBoard` / `persistBoard` (`GET` / `PUT /api/board`); not the per-operation helpers from the original checklist
+- [x] Update `KanbanBoard.tsx` — `useEffect` loads `GET /api/board`; loading and load-error UI
+- [x] Mutation handlers (drag, rename, add, delete) update state and call `persistBoard`
+- [x] API errors — load failure message; save failure banner (non-silent)
+- [x] Docker stack serves app + API on one origin; dev uses Next rewrites to port 8000
 
 ### Tests (in `testing/frontend/`)
 
-- [ ] Vitest: mock `api.ts` and test `KanbanBoard` fetches on mount, calls API on mutations
-- [ ] Update `testing/frontend/` e2e tests to run against Docker stack (`http://localhost:8000`):
-  - Login, load board, rename column, add card, move card, delete card, refresh — data persists
+- [ ] Folder still minimal; Vitest/Playwright live under `frontend/`
+
+### Tests (Vitest / Playwright, `frontend/`)
+
+- [x] Vitest: `KanbanBoard.test.tsx` mocks `fetch` for `GET`/`PUT /api/board`
+- [x] Playwright `frontend/tests/kanban.spec.ts` — login, board, add/move cards (API on 8000 via dual `webServer`)
 
 ### Tests (in `testing/api/`)
 
-- [ ] Full flow integration test: login → load board → add card → reload → card still present
+- [ ] Full flow integration test: login → load board → add card → reload (optional enhancement)
 
 ### Success Criteria
 
-- Board state survives page refresh
-- All Kanban operations (rename column, add/move/delete card) persist to database
-- No use of `initialData` in production flow
-- All tests pass
+- [x] Board state survives page refresh (server is source of truth)
+- [x] Rename column, add/move/delete card persist via `PUT /api/board`
+- [x] Runtime board data does not come from `initialData`; that object is only seed/types/tests
+- [x] Relevant unit + e2e tests pass
 
 ---
 

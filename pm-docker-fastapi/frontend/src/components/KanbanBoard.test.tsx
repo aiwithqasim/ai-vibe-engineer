@@ -1,17 +1,61 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KanbanBoard } from "@/components/KanbanBoard";
+import { initialData, type BoardData } from "@/lib/kanban";
+
+let mockBoard: BoardData;
+
+beforeEach(() => {
+  mockBoard = structuredClone(initialData);
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url =
+        typeof input === "string"
+          ? input
+          : input instanceof URL
+            ? input.href
+            : input.url;
+      if (url.includes("/api/board")) {
+        const method = init?.method ?? "GET";
+        if (method === "GET") {
+          return {
+            ok: true,
+            json: async () => structuredClone(mockBoard),
+          };
+        }
+        if (method === "PUT") {
+          mockBoard = JSON.parse(init!.body as string) as BoardData;
+          return { ok: true, json: async () => ({ ok: true }) };
+        }
+      }
+      return { ok: false, status: 404, statusText: "Not Found" };
+    }) as typeof fetch
+  );
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 const getFirstColumn = () => screen.getAllByTestId(/column-/i)[0];
 
+async function renderBoard() {
+  render(<KanbanBoard />);
+  await waitFor(() => {
+    expect(screen.getAllByTestId(/column-/i)).toHaveLength(5);
+  });
+}
+
 describe("KanbanBoard", () => {
-  it("renders five columns", () => {
-    render(<KanbanBoard />);
+  it("renders five columns", async () => {
+    await renderBoard();
     expect(screen.getAllByTestId(/column-/i)).toHaveLength(5);
   });
 
   it("renames a column", async () => {
-    render(<KanbanBoard />);
+    await renderBoard();
     const column = getFirstColumn();
     const input = within(column).getByLabelText("Column title");
     await userEvent.clear(input);
@@ -20,7 +64,7 @@ describe("KanbanBoard", () => {
   });
 
   it("adds and removes a card", async () => {
-    render(<KanbanBoard />);
+    await renderBoard();
     const column = getFirstColumn();
     const addButton = within(column).getByRole("button", {
       name: /add a card/i,

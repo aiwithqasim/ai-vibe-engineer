@@ -25,9 +25,16 @@ backend/
 | Method | Path | Description |
 |---|---|---|
 | GET | `/api/hello` | Health check — returns `{"message": "hello world"}` |
+| POST | `/api/auth/login` | JSON `{username, password}` — MVP: `user` / `password`; sets HTTP-only `session` cookie (JWT) |
+| POST | `/api/auth/logout` | Clears `session` cookie |
+| GET | `/api/auth/me` | Returns `{"username"}` if cookie valid, else 401 |
 | GET | `/` | Serves static frontend (or fallback HTML if not built) |
+| GET | `/api/board` | Returns board JSON (columns + cards); requires auth cookie |
+| PUT | `/api/board` | Replaces full board state; requires auth cookie |
 
-More routes are added in Parts 4, 6, 8, 9.
+SQLite file: `DATABASE_PATH` env, or `{DATA_DIR}/kanban.db` (Docker: `DATA_DIR=/app/data`, volume-mounted). Seeded once with default columns/cards matching the frontend.
+
+JWT signing uses env `AUTH_SECRET` (default insecure dev string if unset). More routes are added in Parts 8, 9.
 
 ## Static File Serving
 

@@ -14,11 +14,13 @@ COPY backend/pyproject.toml ./
 RUN uv pip install --system --no-cache \
     "fastapi>=0.115" \
     "uvicorn[standard]>=0.34" \
-    "python-multipart>=0.0.20"
+    "python-multipart>=0.0.20" \
+    "PyJWT>=2.9"
 
 # Stage 3: final runtime image
 FROM python:3.12-slim
 WORKDIR /app
+ENV DATA_DIR=/app/data
 
 COPY --from=python-deps /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=python-deps /usr/local/bin/uvicorn /usr/local/bin/uvicorn
