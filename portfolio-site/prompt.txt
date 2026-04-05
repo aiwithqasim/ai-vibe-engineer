@@ -1,0 +1,57 @@
+PROMPT# 01
+----------
+
+My LinkedIn profile is in LinkedIn.pdf.
+
+Make the website stunning.
+
+Enterprise meets edgy.
+
+It should include about me, my career journey, links to a portfolio for future.
+
+Iterate to make it as slick and professional as possible.
+
+And let me know when complete. Use Next.js. That's it.
+
+PROMPT# 02
+----------
+
+Please now add the ability to have an AI chat with a digital twin,
+
+which can answer questions about my career.
+
+Please use OpenRooter.
+
+My OpenRooter API key is in the .emv file in the project root.
+
+Please use the model named "model-name".
+
+PROMPT# 03
+----------
+
+Please now write me a comprehensive tutorial in Markdown
+
+that's suitable for a complete beginner in front-end coding
+
+to walk me through what you've done here.
+
+Include a summary of the technology,
+
+a high-level walkthrough,
+
+a detailed code review with code samples,
+
+and end with five suggestions for the ways the code
+
+could be improved based on a self-review.
+
+PROMPT# 04
+----------
+
+please do a comprehensive code review
+
+of this project and write the results to review.md
+
+including remediate any remedial actions needed.
+
+Don't actually change any code.
