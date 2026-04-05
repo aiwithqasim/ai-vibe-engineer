@@ -6,7 +6,8 @@ Python service that exposes JSON APIs under `/api/`, authenticates users with an
 
 | File / area | Role |
 |-------------|------|
-| `main.py` | FastAPI app, lifespan (`database.init_db`), auth, board routes (including granular column/card routes), static mount |
+| `main.py` | FastAPI app, lifespan (`database.init_db`), auth, board routes, `POST /api/ai/test`, chat router include, static mount |
+| `ai.py`, `prompts.py`, `board_mutations.py`, `routers/chat.py` | OpenRouter client, system prompt, mutation apply, `POST /api/chat` |
 | `auth.py` | JWT create/decode, MVP credentials `user` / `password`, cookie name `session` |
 | `models.py` | Pydantic models for board payloads and PATCH/POST bodies |
 | `crud.py` | Mutations on in-memory board dict + `save_board` |
@@ -29,6 +30,10 @@ Python service that exposes JSON APIs under `/api/`, authenticates users with an
 | POST | `/api/cards` | Cookie | Body `{ "column_id", "title", "details" }`; response `{ "board": ... }` |
 | PATCH | `/api/cards/{id}` | Cookie | Optional `title`, `details`, `column_id`, `index` (at least one); `{ "board": ... }` |
 | DELETE | `/api/cards/{id}` | Cookie | Response `{ "board": ... }` |
+| POST | `/api/ai/test` | Cookie | OpenRouter sanity check; response `{ "answer": ... }` (503 if key missing) |
+| POST | `/api/chat` | Cookie | Body `{ "message", "history": [{ "role", "content" }] }`; response `{ "message", "mutations_applied", "board" }` |
+
+**Environment (AI):** `OPENROUTER_API_KEY` required for chat and ai/test. Optional `OPENROUTER_MODEL` (default in code: `openai/gpt-oss-120b:free`).
 
 ## SQLite
 

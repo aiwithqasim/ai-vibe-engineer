@@ -28,6 +28,7 @@ Ensure nothing else is blocking port **8000** or change `BASE_URL` inside `test_
 
 - **`test_frontend_served.py`** — `GET /` HTML, `GET /api/hello`, content checks for the Kanban app when the static export is present in the running image.
 - **`test_board_flow.py`** — login, `POST /api/cards`, `GET /api/board`, `DELETE /api/cards/{id}` (skips if nothing is listening on `localhost:8000`; optional `API_BASE_URL` env override).
+- **`test_ai_live.py`** — optional live OpenRouter check for `POST /api/ai/test` (skipped unless `RUN_LIVE_AI=1`; needs real `OPENROUTER_API_KEY` in the running environment).
 
 ## See also
 

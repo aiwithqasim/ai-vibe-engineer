@@ -10,7 +10,7 @@ From **`frontend/`**:
 npm run test:unit
 ```
 
-Files include `src/**/*.test.tsx`, `src/**/*.test.ts` (e.g. `KanbanBoard`, login page, `kanban` helpers).
+Files include `src/**/*.test.tsx`, `src/**/*.test.ts` (e.g. `KanbanBoard`, `ChatSidebar`, login page, `kanban` helpers).
 
 ## End-to-end tests (Playwright)
 

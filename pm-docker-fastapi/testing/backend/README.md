@@ -31,7 +31,7 @@ python -m pytest testing/backend/
 
 - **`conftest.py`** sets **`DATABASE_PATH`** to `testing/backend/.pytest_kanban.db` and removes that file before import so each run gets a clean DB. It uses `TestClient` as a context manager so **FastAPI lifespan** runs (`database.init_db()`).
 - An **autouse** fixture resets the board payload to **`BOARD_SEED`** before every test so mutations do not leak order.
-- Tests cover **`/api/hello`**, auth, **`GET`/`PUT /api/board`**, granular column/card routes (`test_board_routes.py`), and static fallback when `backend/static/` is absent.
+- Tests cover **`/api/hello`**, auth, **`GET`/`PUT /api/board`**, granular column/card routes (`test_board_routes.py`), static fallback when `backend/static/` is absent, OpenRouter client mocks (`test_ai.py`), and **`POST /api/chat`** with mocked AI (`test_chat.py`).
 
 ## See also
 

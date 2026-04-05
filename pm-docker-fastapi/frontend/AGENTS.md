@@ -2,7 +2,7 @@
 
 ## Overview
 
-A Next.js 16 (App Router) frontend-only Kanban board. There is no backend or authentication yet; all state lives in React memory and resets on page reload. This serves as the visual and interaction baseline for the full-stack build.
+Next.js 16 (App Router) app: login (`AuthGate`), authenticated Kanban board backed by FastAPI (`/api/*`), and a docked **AI chat** sidebar (`ChatSidebar`) that calls `POST /api/chat` and refreshes board state when the model returns mutations.
 
 ## Stack
 
@@ -15,95 +15,47 @@ A Next.js 16 (App Router) frontend-only Kanban board. There is no backend or aut
 | Unit / integration tests | Vitest 3 + @testing-library/react + jsdom |
 | E2E tests | Playwright |
 
-## Directory Structure
+## Directory Structure (high level)
 
 ```
 frontend/
 ├── src/
-│   ├── app/
-│   │   ├── globals.css         # Tailwind entry, CSS design tokens
-│   │   ├── layout.tsx          # Root layout, fonts (Space Grotesk, Manrope)
-│   │   └── page.tsx            # Single route — renders <KanbanBoard />
+│   ├── app/                 # layout, globals.css, page (AuthGate + KanbanBoard), login
 │   ├── components/
-│   │   ├── KanbanBoard.tsx     # Top-level board, all state, dnd-kit wiring
-│   │   ├── KanbanBoard.test.tsx
-│   │   ├── KanbanColumn.tsx    # Droppable column, sortable card list
-│   │   ├── KanbanCard.tsx      # Sortable card with remove button
-│   │   ├── KanbanCardPreview.tsx  # Static overlay shown while dragging
-│   │   └── NewCardForm.tsx     # Inline add-card form per column
+│   │   ├── KanbanBoard.tsx  # Loads board from API, DnD, header, chat toggle
+│   │   ├── KanbanColumn.tsx # Droppable column, equal-height row on lg, scrollable card list
+│   │   ├── KanbanCard.tsx, KanbanCardPreview.tsx, NewCardForm.tsx
+│   │   ├── ChatSidebar.tsx  # Session chat UI; sendChat; onBoardSynced(board)
+│   │   ├── AuthGate.tsx
+│   │   └── *.test.tsx
 │   ├── lib/
-│   │   ├── kanban.ts           # Types, initialData, moveCard, createId
-│   │   └── kanban.test.ts      # Unit tests for moveCard
-│   └── test/
-│       ├── setup.ts            # @testing-library/jest-dom import
-│       └── vitest.d.ts         # Type references
-└── tests/
-    └── kanban.spec.ts          # Playwright e2e: load, add card, drag
+│   │   ├── kanban.ts        # Types, initialData (seed parity), moveCard, findCardPlacement
+│   │   ├── api.ts           # fetchBoard, persistBoard, column/card routes, sendChat
+│   │   └── session.ts       # login/logout helpers
+│   └── test/setup.ts        # jest-dom; scrollIntoView stub for jsdom
+└── tests/                   # Playwright specs
 ```
 
-## Data Model
+## Data flow
 
-Defined in `src/lib/kanban.ts`.
+- After login, `KanbanBoard` loads with `GET /api/board` (`fetchBoard`). Mutations use granular APIs in `api.ts`; responses include `{ board }` where applicable.
+- `sendChat(message, history)` posts to `/api/chat` with `credentials: "include"`. Prior turns go in `history`; the current user text is only in `message` (matches backend contract).
+- When `mutations_applied` is non-empty, `ChatSidebar` calls `onBoardSynced(data.board)` so the UI updates without a full refetch.
 
-```
-BoardData
-  columns: Column[]         # ordered list
-    id: string
-    title: string
-    cardIds: string[]       # ordered card ids for this column
-
-  cards: Record<string, Card>
-    id: string
-    title: string
-    details: string
-```
-
-`initialData` seeds 5 columns (Backlog, In Progress, In Review, Done, Archived) and 8 cards. Column order and card order within columns are preserved by `cardIds` arrays.
-
-## Key Components
+## Key components
 
 ### KanbanBoard
-- `"use client"` component owning all board state via `useState<BoardData>`.
-- Initialises from `initialData` (in-memory only).
-- Configures `DndContext` with `PointerSensor` (6 px activation distance) and `closestCorners` collision detection.
-- Delegates drag logic to `moveCard` from `lib/kanban.ts` on `onDragEnd`.
-- Renders a `DragOverlay` using `KanbanCardPreview` for the active card.
-- Exposes handlers: `handleRenameColumn`, `handleAddCard`, `handleDeleteCard`.
+- Client state from API; debounced column rename; drag uses `patchCard` with `column_id` + `index`.
+- Header: **AI chat** opens/closes `ChatSidebar` (button hidden while open; **Close** inside sidebar).
+- Layout: `main` + sidebar in a flex row; when chat is open, `main` uses full width up to the sidebar (`max-w-none`).
+
+### ChatSidebar
+- Message list, composer, loading and error states; scroll stays inside the message panel (no `scrollIntoView` on the document).
 
 ### KanbanColumn
-- Uses `useDroppable` keyed on column id.
-- Wraps cards in `SortableContext` with `verticalListSortingStrategy`.
-- Renders a controlled `<input>` for column renaming.
-- Shows empty-state text when `cardIds` is empty.
-- `data-testid="column-{id}"`.
+- `h-full` in the board grid; card area `flex-1 min-h-0 overflow-y-auto`; **Add a card** pinned with `mt-auto` so column footers align on large screens.
 
-### KanbanCard
-- Uses `useSortable` keyed on card id.
-- Applies `CSS.Transform.toString(transform)` and transition from dnd-kit.
-- Whole card acts as drag handle via spread `attributes` and `listeners`.
-- Shows title, details, and a Remove button calling `onDelete`.
-- `data-testid="card-{id}"`.
-
-### KanbanCardPreview
-- Renders card title and details without any sortable hooks.
-- Used only inside `DragOverlay`.
-
-### NewCardForm
-- Collapsed state: "Add a card" button.
-- Expanded state: title input (required), details textarea (optional), Add / Cancel.
-- Calls `onAdd(title, details)` on submit; resets and collapses after.
-
-## Pure Logic — `lib/kanban.ts`
-
-`moveCard(columns, activeId, overId)`:
-1. Locate source column (contains `activeId`).
-2. If `overId` is a column id — move card to end of that column.
-3. If `overId` is a card id and same column — reorder within column via splice.
-4. If `overId` is a card id in a different column — insert at that position.
-
-`createId(prefix)` — generates `"{prefix}-{Date.now()}"` for new card ids.
-
-## Design Tokens (globals.css)
+## Design tokens (globals.css)
 
 | Variable | Value | Use |
 |---|---|---|
@@ -115,25 +67,10 @@ BoardData
 
 ## Tests
 
-Run unit tests:
 ```
 npm run test:unit
-```
-
-Run e2e tests (requires dev server on port 3000):
-```
 npm run test:e2e
-```
-
-Run all:
-```
 npm run test:all
 ```
 
-## What Is NOT Yet Implemented
-
-- User sign-in / authentication
-- Backend API integration
-- Database persistence
-- Card editing after creation (only add and delete)
-- AI chat sidebar
+Unit tests mock `fetch` for board and chat routes where needed.

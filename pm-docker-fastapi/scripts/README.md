@@ -14,7 +14,7 @@ Cross-platform helpers to start and stop the **Docker Compose** stack from the *
 ## Requirements
 
 - **Docker Desktop** (or compatible engine) must be running.
-- **`.env`** at the repo root — required by `docker-compose.yml` (`env_file`). Create an empty file if you have no secrets yet.
+- **`.env`** at the repo root — required by `docker-compose.yml` (`env_file`). Create an empty file if you have no secrets yet. Add **`OPENROUTER_API_KEY`** (and optionally **`OPENROUTER_MODEL`**) for AI chat; see **`../README.md`**.
 
 ## Usage
 

@@ -1,6 +1,6 @@
 # Frontend (Next.js)
 
-Kanban Studio UI: login, authenticated board with five columns, drag-and-drop cards, column rename, add/delete cards. Talks to the FastAPI backend via **`/api/*`** (same origin in Docker; proxied in local dev).
+Kanban Studio UI: login, authenticated board with five columns, drag-and-drop cards, column rename, add/delete cards, and an **AI chat** sidebar (OpenRouter via backend `POST /api/chat`). Talks to FastAPI via **`/api/*`** (same origin in Docker; proxied in local dev).
 
 ## Stack
 
@@ -28,6 +28,7 @@ Kanban Studio UI: login, authenticated board with five columns, drag-and-drop ca
 - **Load:** `KanbanBoard` calls `fetchBoard()` (`GET /api/board`) after auth.
 - **Save (granular):** Column rename uses debounced `PATCH /api/columns/{id}`; add card `POST /api/cards`; delete `DELETE /api/cards/{id}`; drag uses `PATCH /api/cards/{id}` with `column_id` and `index` from `findCardPlacement` on the client-computed layout. Responses wrap the full board as `{ board }`; `src/lib/api.ts` maps those to `BoardData`.
 - **Bulk:** `persistBoard()` / `PUT /api/board` remains available for tools or future use.
+- **AI chat:** `sendChat(message, history)` → `POST /api/chat` (`src/lib/api.ts`). `ChatSidebar` refreshes board from the response when `mutations_applied` is non-empty.
 - **`initialData`** in `src/lib/kanban.ts` is the default seed shape (kept in sync with `backend/board_seed.py`); it is not the runtime source of truth after a successful load.
 
 ## Commands
@@ -69,7 +70,7 @@ npm run test:all
 
 `test:e2e:docker` expects the app on port 8000 (e.g. Docker) and uses `playwright.docker.config.ts`.
 
-**Unit tests** mock `fetch` for `/api/board` where needed.
+**Unit tests** mock `fetch` for `/api/board`, column/card routes, and `/api/chat` where needed (`KanbanBoard.test.tsx`, `ChatSidebar.test.tsx`).
 
 **E2e** (`playwright.config.ts`) starts two processes: Uvicorn from the repo root (with a temp SQLite file via `DATABASE_PATH`) and `npm run dev` on port 3000. Tests log in with `user` / `password` before board scenarios.
 
@@ -78,8 +79,8 @@ npm run test:all
 ```
 src/
   app/           layout, global styles, page, login
-  components/    KanbanBoard, columns, cards, forms, AuthGate
-  lib/           kanban types/logic, api.ts, session.ts
+  components/    KanbanBoard, KanbanColumn, cards, NewCardForm, ChatSidebar, AuthGate
+  lib/           kanban types/logic, api.ts (incl. sendChat), session.ts
 tests/           Playwright specs
 ```
 

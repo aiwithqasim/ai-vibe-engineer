@@ -1,21 +1,21 @@
-# Chat / AI integration tests (placeholder)
+# Chat / AI integration tests
 
-Reserved for end-to-end or integration tests that cover the **AI chat** flow once implemented (`PLAN.md` Parts 8–10: OpenRouter connectivity, `POST /api/chat`, sidebar UI).
+## Current state
 
-## Planned prerequisites
+- **`test_chat_integration.py`** — module skipped by default; reserved for future end-to-end flows against Docker + real or stubbed AI.
 
-- Docker stack running (or equivalent local API).
-- Valid **`OPENROUTER_API_KEY`** in `.env` for live-model tests (optional; prefer mocked HTTP in CI).
+## Covered elsewhere
 
-## Planned run
+- **Mocked HTTP:** `testing/backend/test_ai.py`, `testing/backend/test_chat.py` (no OpenRouter key required).
+- **Optional live call:** `testing/api/test_ai_live.py` with `RUN_LIVE_AI=1` and stack + key (see `../api/README.md`).
+
+## Run
 
 ```bash
 pytest testing/chat/
 ```
 
-Add tests here when chat routes and UI exist.
-
 ## See also
 
-- **`../../docs/PLAN.md`** — Parts 8, 9, 10
+- **`../../docs/PLAN.md`** — product phases
 - **`../README.md`** — testing directory overview
