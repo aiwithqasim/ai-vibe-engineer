@@ -1,0 +1,26 @@
+For Success: Be the Boss
+- Invest in agent.md ( concise: spec, style, success)
+- Start SIMPLE
+- Work Incementally ( test constantlt, validate success criteria )
+- DOn't get lazy challenge and demand evidance
+- Handle frustation with Style
+
+- Junior Engineers: Keep learning and be skeptical ( how? explain, why ?)
+- Senior Engineers: Keep building and keep enjoying
+- For Everyone: Expect Mix results, recognize the downside, its a net positive
+
+- Frontend: Runs in users browser
+- Backend: Run on the server
+- API:  Frontend call Backend
+
+- HTML, CSS Javascript JQuery 
+- React
+- Next.js
+
+- Docker
+- Box within a Box
+- Islated, portable
+
+- Dockerfile (recepie)
+- Image (snapshot)
+- Container (live instance)
