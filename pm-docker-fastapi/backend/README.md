@@ -6,9 +6,11 @@ Python service that exposes JSON APIs under `/api/`, authenticates users with an
 
 | File / area | Role |
 |-------------|------|
-| `main.py` | FastAPI app, lifespan (`database.init_db`), auth routes, board routes, static mount or HTML fallback |
+| `main.py` | FastAPI app, lifespan (`database.init_db`), auth, board routes (including granular column/card routes), static mount |
 | `auth.py` | JWT create/decode, MVP credentials `user` / `password`, cookie name `session` |
-| `database.py` | SQLite path, `init_db`, `load_board`, `save_board` |
+| `models.py` | Pydantic models for board payloads and PATCH/POST bodies |
+| `crud.py` | Mutations on in-memory board dict + `save_board` |
+| `database.py` | SQLite path, `init_db`, `load_board`, `save_board`, `reset_board_to_seed` (tests) |
 | `board_seed.py` | Default board JSON (must stay aligned with `frontend/src/lib/kanban.ts` `initialData`) |
 | `static/` | Filled at Docker build time from `frontend/out/` (not always present in a raw clone) |
 | `pyproject.toml` | Package metadata; optional `[test]` extras for local pytest |
@@ -22,7 +24,11 @@ Python service that exposes JSON APIs under `/api/`, authenticates users with an
 | POST | `/api/auth/logout` | No | Clears `session` |
 | GET | `/api/auth/me` | Cookie | `{"username"}` or 401 |
 | GET | `/api/board` | Cookie | Full board JSON |
-| PUT | `/api/board` | Cookie | Replace full board JSON |
+| PUT | `/api/board` | Cookie | Replace full board JSON (bulk) |
+| PATCH | `/api/columns/{id}` | Cookie | Body `{ "title" }`; response `{ "board": ... }` |
+| POST | `/api/cards` | Cookie | Body `{ "column_id", "title", "details" }`; response `{ "board": ... }` |
+| PATCH | `/api/cards/{id}` | Cookie | Optional `title`, `details`, `column_id`, `index` (at least one); `{ "board": ... }` |
+| DELETE | `/api/cards/{id}` | Cookie | Response `{ "board": ... }` |
 
 ## SQLite
 

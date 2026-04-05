@@ -26,7 +26,8 @@ Kanban Studio UI: login, authenticated board with five columns, drag-and-drop ca
 ## Data flow
 
 - **Load:** `KanbanBoard` calls `fetchBoard()` (`GET /api/board`) after auth.
-- **Save:** After each mutation, `persistBoard()` (`PUT /api/board`) sends the full board JSON.
+- **Save (granular):** Column rename uses debounced `PATCH /api/columns/{id}`; add card `POST /api/cards`; delete `DELETE /api/cards/{id}`; drag uses `PATCH /api/cards/{id}` with `column_id` and `index` from `findCardPlacement` on the client-computed layout. Responses wrap the full board as `{ board }`; `src/lib/api.ts` maps those to `BoardData`.
+- **Bulk:** `persistBoard()` / `PUT /api/board` remains available for tools or future use.
 - **`initialData`** in `src/lib/kanban.ts` is the default seed shape (kept in sync with `backend/board_seed.py`); it is not the runtime source of truth after a successful load.
 
 ## Commands
@@ -62,8 +63,11 @@ npm run lint
 ```bash
 npm run test:unit
 npm run test:e2e
+npm run test:e2e:docker
 npm run test:all
 ```
+
+`test:e2e:docker` expects the app on port 8000 (e.g. Docker) and uses `playwright.docker.config.ts`.
 
 **Unit tests** mock `fetch` for `/api/board` where needed.
 

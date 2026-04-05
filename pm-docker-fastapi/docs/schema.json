@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Target relational schema for Kanban Studio (not yet migrated from board_state JSON).",
+  "version": 1,
+  "dialect": "sqlite3",
+  "tables": {
+    "users": {
+      "description": "Accounts; MVP uses one hardcoded login, table ready for expansion.",
+      "columns": {
+        "id": { "type": "integer", "constraints": "PRIMARY KEY AUTOINCREMENT" },
+        "username": { "type": "text", "constraints": "NOT NULL UNIQUE" },
+        "password_hash": { "type": "text", "constraints": "NOT NULL" },
+        "created_at": { "type": "text", "constraints": "NOT NULL DEFAULT (datetime('now'))" }
+      }
+    },
+    "boards": {
+      "description": "One board per user for MVP; multiple boards per user later.",
+      "columns": {
+        "id": { "type": "integer", "constraints": "PRIMARY KEY AUTOINCREMENT" },
+        "user_id": { "type": "integer", "constraints": "NOT NULL REFERENCES users(id) ON DELETE CASCADE" },
+        "title": { "type": "text", "constraints": "NOT NULL DEFAULT 'My board'" },
+        "created_at": { "type": "text", "constraints": "NOT NULL DEFAULT (datetime('now'))" }
+      }
+    },
+    "columns": {
+      "description": "Ordered columns on a board.",
+      "columns": {
+        "id": { "type": "text", "constraints": "PRIMARY KEY" },
+        "board_id": { "type": "integer", "constraints": "NOT NULL REFERENCES boards(id) ON DELETE CASCADE" },
+        "title": { "type": "text", "constraints": "NOT NULL" },
+        "position": { "type": "integer", "constraints": "NOT NULL" }
+      }
+    },
+    "cards": {
+      "description": "Cards belong to one column; order within column via position.",
+      "columns": {
+        "id": { "type": "text", "constraints": "PRIMARY KEY" },
+        "column_id": { "type": "text", "constraints": "NOT NULL REFERENCES columns(id) ON DELETE CASCADE" },
+        "title": { "type": "text", "constraints": "NOT NULL" },
+        "details": { "type": "text", "constraints": "NOT NULL DEFAULT ''" },
+        "position": { "type": "integer", "constraints": "NOT NULL" }
+      }
+    }
+  },
+  "relationships": [
+    "users 1:N boards",
+    "boards 1:N columns",
+    "columns 1:N cards"
+  ],
+  "indexes_suggested": [
+    "boards(user_id)",
+    "columns(board_id, position)",
+    "cards(column_id, position)"
+  ]
+}

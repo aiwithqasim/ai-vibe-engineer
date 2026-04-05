@@ -166,3 +166,16 @@ export const createId = (prefix: string) => {
   const timePart = Date.now().toString(36);
   return `${prefix}-${randomPart}${timePart}`;
 };
+
+export function findCardPlacement(
+  board: BoardData,
+  cardId: string
+): { columnId: string; index: number } | null {
+  for (const col of board.columns) {
+    const index = col.cardIds.indexOf(cardId);
+    if (index !== -1) {
+      return { columnId: col.id, index };
+    }
+  }
+  return null;
+}

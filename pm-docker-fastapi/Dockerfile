@@ -15,7 +15,8 @@ RUN uv pip install --system --no-cache \
     "fastapi>=0.115" \
     "uvicorn[standard]>=0.34" \
     "python-multipart>=0.0.20" \
-    "PyJWT>=2.9"
+    "PyJWT>=2.9" \
+    "httpx>=0.28"
 
 # Stage 3: final runtime image
 FROM python:3.12-slim

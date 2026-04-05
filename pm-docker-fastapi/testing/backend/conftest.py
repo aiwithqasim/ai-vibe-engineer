@@ -15,3 +15,11 @@ from backend.main import app
 def client():
     with TestClient(app) as test_client:
         yield test_client
+
+
+@pytest.fixture(autouse=True)
+def reset_board_each_test(client):
+    from backend import database
+
+    database.reset_board_to_seed()
+    yield

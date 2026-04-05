@@ -21,7 +21,7 @@ export const NewCardForm = ({ onAdd }: NewCardFormProps) => {
   };
 
   return (
-    <div className="mt-4">
+    <div className="w-full">
       {isOpen ? (
         <form onSubmit={handleSubmit} className="space-y-3">
           <input

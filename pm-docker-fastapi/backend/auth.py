@@ -1,7 +1,9 @@
 import os
 from datetime import UTC, datetime, timedelta
+from typing import Annotated
 
 import jwt
+from fastapi import Cookie, HTTPException
 
 COOKIE_NAME = "session"
 ALGORITHM = "HS256"
@@ -31,3 +33,12 @@ def decode_username(token: str) -> str | None:
         return str(sub) if isinstance(sub, str) else None
     except jwt.PyJWTError:
         return None
+
+
+def require_user(session: Annotated[str | None, Cookie()] = None) -> str:
+    if not session:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    username = decode_username(session)
+    if username is None:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    return username

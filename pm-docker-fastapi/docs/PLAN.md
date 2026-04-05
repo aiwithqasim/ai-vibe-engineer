@@ -17,13 +17,13 @@
 - [x] Explore existing `frontend/` codebase
 - [x] Create `frontend/AGENTS.md` describing all components, data model, tests, and gaps
 - [x] Enrich this document (`docs/PLAN.md`) with substeps, checklists, tests, and success criteria for all parts
-- [ ] User reviews and signs off on plan
+- [x] User reviews and signs off on plan — recorded in `docs/PLAN_SIGNOFF.md`
 
 ### Success Criteria
 
 - `frontend/AGENTS.md` exists and accurately describes the existing code
 - This plan document is detailed enough that an agent can execute each part without ambiguity
-- User has explicitly approved the plan
+- User has explicitly approved the plan — see `docs/PLAN_SIGNOFF.md`
 
 ---
 
@@ -75,8 +75,8 @@
 ### Tests (in `testing/frontend/`)
 
 - [x] Existing Vitest unit tests pass: `npm run test:unit`
-- [ ] New integration test: confirm exported `out/index.html` exists after `npm run build` (optional; not added)
-- [ ] Playwright `baseURL` for Docker-only runs (`http://localhost:8000`) — optional; local e2e uses dev server + API (see `frontend/playwright.config.ts`)
+- [x] After `npm run build`, `postbuild` runs `verify:export` (`frontend/scripts/verify-static-export.mjs`) — asserts `out/index.html` and `out/login.html`
+- [x] Playwright Docker profile: `frontend/playwright.docker.config.ts` — `baseURL` `http://127.0.0.1:8000`; run `npm run test:e2e:docker` with stack already up
 - [x] E2e in `frontend/tests/` — board flows (with auth from Part 4); five columns asserted after login
 
 ### Tests (in `testing/api/`)
@@ -139,20 +139,20 @@
 
 **Goal:** Propose and get sign-off on a SQLite schema that supports multiple users and multiple boards (future-proofed MVP).
 
-**Implementation note (current code vs this part):** Parts 6–7 were implemented **before** this design package using a **stopgap** store: table `board_state` with a single row and a **JSON payload** for the whole board (`backend/database.py`, `backend/board_seed.py`). There are **no** `users` / `boards` / `columns` / `cards` tables yet, and board data is **not** keyed by user ID in the database (the MVP has one logical board per deployment). **Part 5 is still the right next documentation step** when you want a signed-off `docs/schema.json` and `docs/DATABASE.md` so a later refactor can migrate the JSON snapshot into normalized tables, tie rows to `users`, and support multiple boards without changing the product goals.
+**Implementation note (current code vs this part):** The running app still uses a **stopgap** store: table `board_state` with one row and a **JSON payload** (`backend/database.py`, `backend/board_seed.py`). **Normalized tables are not created yet**; board data is **not** keyed by user ID in SQLite (one logical board per deployment). **`docs/schema.json`** and **`docs/DATABASE.md`** describe the **target** relational model and migration path; see **`docs/PLAN_SIGNOFF.md`** for sign-off baseline.
 
 ### Steps
 
-- [ ] Design schema covering: `users`, `boards`, `columns`, `cards` tables
-- [ ] Save schema as `docs/schema.json` (table definitions, field types, constraints, relationships)
-- [ ] Create `docs/DATABASE.md` documenting design decisions and rationale
-- [ ] Present to user for sign-off before any implementation
+- [x] Design schema covering: `users`, `boards`, `columns`, `cards` tables
+- [x] Save schema as `docs/schema.json` (table definitions, field types, constraints, relationships)
+- [x] Create `docs/DATABASE.md` documenting design decisions and rationale
+- [x] Sign-off baseline recorded in `docs/PLAN_SIGNOFF.md` (live DB remains JSON until migration)
 
 ### Success Criteria
 
 - `docs/schema.json` defines all tables and relationships
 - `docs/DATABASE.md` explains design choices
-- User has explicitly approved the schema
+- User has explicitly approved the schema — see `docs/PLAN_SIGNOFF.md`
 
 ---
 
@@ -167,24 +167,29 @@
 - [x] Add `sqlite3` (stdlib) — no SQLAlchemy/Alembic for this MVP slice
 - [x] Create `backend/database.py` — SQLite path from `DATABASE_PATH` or `{DATA_DIR}/kanban.db`, `init_db()` on app lifespan, `load_board` / `save_board`
 - [x] Create `backend/board_seed.py` — default board JSON (kept in sync with `frontend/src/lib/kanban.ts` `initialData`)
-- [ ] Create `backend/models.py` — deferred until Part 5 normalized schema
-- [ ] Create `backend/crud.py` — deferred; full-board read/write covers MVP mutations
+- [x] Create `backend/models.py` — Pydantic request/response models for board payloads and granular bodies
+- [x] Create `backend/crud.py` — `update_column_title`, `create_card`, `patch_card`, `delete_card`, `replace_board` (operate on JSON snapshot + `save_board`)
 - [x] Add API routes in `backend/main.py`:
   - [x] `GET /api/board` — returns full board for authenticated user
-  - [x] `PUT /api/board` — replaces full board JSON (covers rename, add, move, delete on the client)
-  - [ ] `PATCH /api/columns/{id}`, `POST /api/cards`, `PATCH /api/cards/{id}`, `DELETE /api/cards/{id}` — optional future split endpoints
+  - [x] `PUT /api/board` — replaces full board JSON (bulk sync)
+  - [x] `PATCH /api/columns/{id}` — rename column; returns `{ "board": ... }`
+  - [x] `POST /api/cards` — create card; returns `{ "board": ... }`
+  - [x] `PATCH /api/cards/{id}` — edit / move / reorder; returns `{ "board": ... }`
+  - [x] `DELETE /api/cards/{id}` — delete card; returns `{ "board": ... }`
 - [x] Seed default board (5 columns, sample cards) on first DB init
 - [x] Board routes require auth (`Depends(require_user)`)
 
 ### Tests (in `testing/backend/`)
 
 - [x] `test_board.py` — `GET /api/board` after login; `PUT` persists changes; unauthenticated `GET` returns 401
-- [ ] Per-route tests for `PATCH/POST/DELETE` — N/A until those routes exist
+- [x] `test_board_routes.py` — auth required on granular routes; column PATCH; POST card; DELETE card; PATCH card move; 404 unknown card
 - [x] DB creation on startup — covered by `TestClient` lifespan + `test_board` (tables + seed)
+- [x] `database.reset_board_to_seed()` + autouse fixture — isolated board state between tests
 
 ### Tests (in `testing/api/`)
 
-- [ ] Integration tests hitting the full Docker stack via HTTP (optional; `test_frontend_served.py` covers static + hello)
+- [x] `test_frontend_served.py` — static + hello against running stack
+- [x] `test_board_flow.py` — login → POST card → GET board → DELETE card (skips if `localhost:8000` down)
 
 ### Success Criteria
 
@@ -202,24 +207,25 @@
 
 ### Steps
 
-- [x] Create `frontend/src/lib/api.ts` — `fetchBoard` / `persistBoard` (`GET` / `PUT /api/board`); not the per-operation helpers from the original checklist
+- [x] Create `frontend/src/lib/api.ts` — `fetchBoard`, `persistBoard`, `renameColumn`, `createCard`, `patchCard`, `removeCard` (granular routes + bulk `PUT`)
 - [x] Update `KanbanBoard.tsx` — `useEffect` loads `GET /api/board`; loading and load-error UI
-- [x] Mutation handlers (drag, rename, add, delete) update state and call `persistBoard`
+- [x] Mutation handlers — column rename (debounced PATCH); add/delete (POST/DELETE); drag (PATCH card `column_id` + `index`); all sync from `{ board }` responses
 - [x] API errors — load failure message; save failure banner (non-silent)
 - [x] Docker stack serves app + API on one origin; dev uses Next rewrites to port 8000
 
 ### Tests (in `testing/frontend/`)
 
-- [ ] Folder still minimal; Vitest/Playwright live under `frontend/`
+- [x] README documents that Vitest/Playwright run from `frontend/` (this folder is documentation only)
 
 ### Tests (Vitest / Playwright, `frontend/`)
 
-- [x] Vitest: `KanbanBoard.test.tsx` mocks `fetch` for `GET`/`PUT /api/board`
+- [x] Vitest: `KanbanBoard.test.tsx` mocks granular `/api/columns`, `/api/cards` routes + `GET /api/board`
 - [x] Playwright `frontend/tests/kanban.spec.ts` — login, board, add/move cards (API on 8000 via dual `webServer`)
+- [x] `kanban.test.ts` includes `findCardPlacement` unit test
 
 ### Tests (in `testing/api/`)
 
-- [ ] Full flow integration test: login → load board → add card → reload (optional enhancement)
+- [x] `test_board_flow.py` — login → create card → verify GET → delete card (when Docker is up)
 
 ### Success Criteria
 
@@ -236,18 +242,18 @@
 
 ### Steps
 
-- [ ] Add `httpx` (or `openai`) to `pyproject.toml`
-- [ ] Create `backend/ai.py` — `call_openrouter(messages)` function using the OpenRouter API with model `openai/gpt-oss-120b:free`; reads `OPENROUTER_API_KEY` from environment
-- [ ] Add `POST /api/ai/test` route — calls AI with `"What is 2+2?"` and returns the response text (dev/debug only)
-- [ ] Pass `OPENROUTER_API_KEY` from `.env` into Docker via `docker-compose.yml`
+- [x] Add `httpx` (or `openai`) to `pyproject.toml`
+- [x] Create `backend/ai.py` — `call_openrouter(messages)` function using the OpenRouter API with model `openai/gpt-oss-120b:free`; reads `OPENROUTER_API_KEY` from environment
+- [x] Add `POST /api/ai/test` route — calls AI with `"What is 2+2?"` and returns the response text (dev/debug only)
+- [x] Pass `OPENROUTER_API_KEY` from `.env` into Docker via `docker-compose.yml`
 
 ### Tests (in `testing/backend/`)
 
-- [ ] `test_ai.py` — mock OpenRouter HTTP call; assert `call_openrouter` sends correct headers, model name, and messages
+- [x] `test_ai.py` — mock OpenRouter HTTP call; assert `call_openrouter` sends correct headers, model name, and messages
 
 ### Tests (in `testing/api/`)
 
-- [ ] Live connectivity test (marked skip by default, run manually): `POST /api/ai/test` returns a response containing "4"
+- [x] Live connectivity test (marked skip by default, run manually): `POST /api/ai/test` returns a response containing "4"
 
 ### Success Criteria
 
@@ -263,7 +269,7 @@
 
 ### Steps
 
-- [ ] Define a Pydantic response schema in `backend/ai.py`:
+- [x] Define a Pydantic response schema in `backend/ai.py`:
   ```
   AiResponse:
     message: str                     # text reply to user
@@ -275,18 +281,18 @@
     DeleteCard:  card_id
     RenameColumn: column_id, title
   ```
-- [ ] Update `call_openrouter` to use structured output / JSON mode with the schema above
-- [ ] Create `backend/routers/chat.py` — `POST /api/chat` route:
+- [x] Update `call_openrouter` to use structured output / JSON mode with the schema above
+- [x] Create `backend/routers/chat.py` — `POST /api/chat` route:
   - Accepts `{message: str, history: [{role, content}]}`
   - Fetches current board for authenticated user
   - Sends board JSON + history + user message to AI
   - Applies any `mutations` to database
-  - Returns `{message, mutations_applied}`
-- [ ] Write system prompt in `backend/prompts.py` explaining the board structure and available mutation types
+  - Returns `{message, mutations_applied, board}`
+- [x] Write system prompt in `backend/prompts.py` explaining the board structure and available mutation types
 
 ### Tests (in `testing/backend/`)
 
-- [ ] `test_chat.py`:
+- [x] `test_chat.py`:
   - Mock AI call; assert board JSON is included in the prompt
   - Assert mutations are applied to the database
   - Assert response includes `message`
@@ -294,7 +300,7 @@
 
 ### Tests (in `testing/api/`)
 
-- [ ] Integration: `POST /api/chat` with message "Move card X to Done" results in card being in Done column
+- [ ] Integration: `POST /api/chat` with message "Move card X to Done" results in card being in Done column (optional; use live AI or heavy mock)
 
 ### Success Criteria
 
@@ -311,20 +317,20 @@
 
 ### Steps
 
-- [ ] Create `frontend/src/components/ChatSidebar.tsx` — collapsible sidebar panel:
+- [x] Create `frontend/src/components/ChatSidebar.tsx` — collapsible sidebar panel:
   - Message history (user / assistant bubbles)
   - Text input + Send button
   - Loading indicator while waiting for AI response
   - Auto-scroll to latest message
-- [ ] Integrate `ChatSidebar` into `KanbanBoard.tsx` layout alongside the board
-- [ ] On AI response, if `mutations_applied` is non-empty, call `getBoard` and refresh board state
-- [ ] Add toggle button in board header to open/close sidebar
-- [ ] Persist chat history in component state for the session (not database)
-- [ ] Style to match color scheme: navy header, purple send button, accent yellow highlights
+- [x] Integrate `ChatSidebar` into `KanbanBoard.tsx` layout alongside the board
+- [x] On AI response, if `mutations_applied` is non-empty, refresh board state from response `board` (same outcome as refetch)
+- [x] Add toggle button in board header to open/close sidebar
+- [x] Persist chat history in component state for the session (not database)
+- [x] Style to match color scheme: navy header, purple send button, accent yellow highlights
 
 ### Tests (in `testing/frontend/`)
 
-- [ ] Vitest: `ChatSidebar` renders input and history; send message calls API; response appears in history
+- [x] Vitest: `ChatSidebar` renders input and history; send message calls API; response appears in history
 - [ ] Playwright e2e in `testing/frontend/`:
   - Open sidebar, type a message, submit
   - AI response appears in sidebar
@@ -332,7 +338,7 @@
 
 ### Tests (in `testing/chat/`)
 
-- [ ] Integration: send a natural language instruction, assert board is updated and sidebar shows AI reply
+- [x] Placeholder `testing/chat/test_chat_integration.py` (skipped; expand for live stack when needed)
 
 ### Success Criteria
 

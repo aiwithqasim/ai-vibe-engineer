@@ -83,9 +83,11 @@ Each of these folders has its own **README.md** with more detail.
 ## Tests
 
 - **Backend (pytest):** from repo root, `PYTHONPATH=. python -m pytest testing/backend/`
-- **API integration (needs Docker up):** `pytest testing/api/`
+- **API integration (needs Docker up):** `pytest testing/api/` (includes `test_board_flow.py` when `localhost:8000` is reachable; skipped otherwise)
 - **Frontend unit:** `cd frontend && npm run test:unit`
 - **Frontend e2e:** `cd frontend && npm run test:e2e` (Playwright starts the API and Next dev server; see `frontend/playwright.config.ts`)
+- **Frontend e2e vs Docker only:** start the stack, then `cd frontend && npm run test:e2e:docker` (see `frontend/playwright.docker.config.ts`)
+- **Static export check:** `cd frontend && npm run build` runs `verify:export` after build (`out/index.html`, `out/login.html`)
 
 ## Documentation
 

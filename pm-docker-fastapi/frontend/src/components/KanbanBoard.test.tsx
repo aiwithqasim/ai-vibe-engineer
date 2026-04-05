@@ -6,6 +6,20 @@ import { initialData, type BoardData } from "@/lib/kanban";
 
 let mockBoard: BoardData;
 
+function applyMoveFromPatch(cardId: string, columnId: string, index: number) {
+  for (const col of mockBoard.columns) {
+    col.cardIds = col.cardIds.filter((id) => id !== cardId);
+  }
+  const target = mockBoard.columns.find((c) => c.id === columnId);
+  if (!target) {
+    return;
+  }
+  const next = [...target.cardIds];
+  const pos = Math.max(0, Math.min(index, next.length));
+  next.splice(pos, 0, cardId);
+  target.cardIds = next;
+}
+
 beforeEach(() => {
   mockBoard = structuredClone(initialData);
   vi.stubGlobal(
@@ -17,19 +31,98 @@ beforeEach(() => {
           : input instanceof URL
             ? input.href
             : input.url;
-      if (url.includes("/api/board")) {
-        const method = init?.method ?? "GET";
-        if (method === "GET") {
-          return {
-            ok: true,
-            json: async () => structuredClone(mockBoard),
-          };
-        }
-        if (method === "PUT") {
-          mockBoard = JSON.parse(init!.body as string) as BoardData;
-          return { ok: true, json: async () => ({ ok: true }) };
-        }
+      const method = init?.method ?? "GET";
+
+      if (url.includes("/api/board") && method === "GET") {
+        return {
+          ok: true,
+          json: async () => structuredClone(mockBoard),
+        };
       }
+
+      if (url.includes("/api/board") && method === "PUT") {
+        mockBoard = JSON.parse(init!.body as string) as BoardData;
+        return { ok: true, json: async () => ({ ok: true }) };
+      }
+
+      const colPatch = url.match(/\/api\/columns\/([^/?]+)/);
+      if (colPatch && method === "PATCH") {
+        const columnId = decodeURIComponent(colPatch[1]);
+        const { title } = JSON.parse(init!.body as string) as { title: string };
+        mockBoard = {
+          ...mockBoard,
+          columns: mockBoard.columns.map((c) =>
+            c.id === columnId ? { ...c, title } : c
+          ),
+        };
+        return {
+          ok: true,
+          json: async () => ({ board: structuredClone(mockBoard) }),
+        };
+      }
+
+      if (url.includes("/api/cards") && method === "POST") {
+        const body = JSON.parse(init!.body as string) as {
+          column_id: string;
+          title: string;
+          details: string;
+        };
+        const id = "card-mocknew";
+        mockBoard = {
+          ...mockBoard,
+          cards: {
+            ...mockBoard.cards,
+            [id]: {
+              id,
+              title: body.title,
+              details: body.details?.trim() || "No details yet.",
+            },
+          },
+          columns: mockBoard.columns.map((c) =>
+            c.id === body.column_id
+              ? { ...c, cardIds: [...c.cardIds, id] }
+              : c
+          ),
+        };
+        return {
+          ok: true,
+          json: async () => ({ board: structuredClone(mockBoard) }),
+        };
+      }
+
+      const cardPatch = url.match(/\/api\/cards\/([^/?]+)/);
+      if (cardPatch && method === "PATCH") {
+        const cardId = decodeURIComponent(cardPatch[1]);
+        const body = JSON.parse(init!.body as string) as {
+          column_id?: string;
+          index?: number;
+        };
+        if (body.column_id !== undefined && body.index !== undefined) {
+          applyMoveFromPatch(cardId, body.column_id, body.index);
+        }
+        return {
+          ok: true,
+          json: async () => ({ board: structuredClone(mockBoard) }),
+        };
+      }
+
+      if (cardPatch && method === "DELETE") {
+        const cardId = decodeURIComponent(cardPatch[1]);
+        const { [cardId]: _, ...rest } = mockBoard.cards;
+        mockBoard = {
+          ...mockBoard,
+          cards: rest,
+          columns: mockBoard.columns.map((c) => ({
+            ...c,
+            cardIds: c.cardIds.filter((id) => id !== cardId),
+          })),
+        };
+        return {
+          ok: true,
+          json: async () => ({ board: structuredClone(mockBoard) }),
+        };
+      }
+
       return { ok: false, status: 404, statusText: "Not Found" };
     }) as typeof fetch
   );
@@ -61,6 +154,13 @@ describe("KanbanBoard", () => {
     await userEvent.clear(input);
     await userEvent.type(input, "New Name");
     expect(input).toHaveValue("New Name");
+    await waitFor(
+      () => {
+        const first = mockBoard.columns[0];
+        expect(first?.title).toBe("New Name");
+      },
+      { timeout: 3000 }
+    );
   });
 
   it("adds and removes a card", async () => {
@@ -78,13 +178,17 @@ describe("KanbanBoard", () => {
 
     await userEvent.click(within(column).getByRole("button", { name: /add card/i }));
 
-    expect(within(column).getByText("New card")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(within(column).getByText("New card")).toBeInTheDocument();
+    });
 
     const deleteButton = within(column).getByRole("button", {
       name: /delete new card/i,
     });
     await userEvent.click(deleteButton);
 
-    expect(within(column).queryByText("New card")).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(within(column).queryByText("New card")).not.toBeInTheDocument();
+    });
   });
 });

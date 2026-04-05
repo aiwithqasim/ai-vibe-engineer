@@ -1,4 +1,4 @@
-import { moveCard, type Column } from "@/lib/kanban";
+import { findCardPlacement, initialData, moveCard, type Column } from "@/lib/kanban";
 
 describe("moveCard", () => {
   const baseColumns: Column[] = [
@@ -21,5 +21,12 @@ describe("moveCard", () => {
     const result = moveCard(baseColumns, "card-1", "col-b");
     expect(result[0].cardIds).toEqual(["card-2"]);
     expect(result[1].cardIds).toEqual(["card-3", "card-1"]);
+  });
+});
+
+describe("findCardPlacement", () => {
+  it("returns column and index for a card id", () => {
+    const p = findCardPlacement(initialData, "card-1");
+    expect(p).toEqual({ columnId: "col-backlog", index: 0 });
   });
 });

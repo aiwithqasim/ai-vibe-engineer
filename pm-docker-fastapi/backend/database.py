@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 import sqlite3
@@ -58,3 +59,8 @@ def save_board(data: dict) -> None:
     )
     conn.commit()
     conn.close()
+
+
+def reset_board_to_seed() -> None:
+    """Test helper: restore row 1 payload to BOARD_SEED."""
+    save_board(copy.deepcopy(BOARD_SEED))
